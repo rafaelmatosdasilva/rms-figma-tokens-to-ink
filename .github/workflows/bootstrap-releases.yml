@@ -1,0 +1,51 @@
+# Re-creates the tags and releases this plugin had in rms-ds-figma-plugins, listed in .github/release-history.json.
+# Each tag is made once, on the commit it marked; each release gets back its notes and a sideload zip made from
+# the exact files committed at that tag (what was shipped). Runs again harmlessly: what exists is skipped.
+name: bootstrap-releases
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/release-history.json]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  recreate:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - name: Tags and releases
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          SLUG="$(node -p 'require("./package.json").name.replace(/^rms-figma-/, "")')"
+          LAST_RELEASE="$(node -p 'const t = require("./.github/release-history.json").tags.filter((x) => x.release); t.length ? t[t.length - 1].tag : ""')"
+          node -e 'for (const t of require("./.github/release-history.json").tags) console.log([t.tag, t.commit, t.release ? "1" : "0", t.message].join("\t"))' |
+          while IFS=$'\t' read -r TAG COMMIT HASREL MESSAGE; do
+            if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+              echo "- $TAG: tag exists" >> "$GITHUB_STEP_SUMMARY"
+            else
+              git tag -a "$TAG" "$COMMIT" -m "$MESSAGE"
+              git push origin "$TAG"
+              echo "- $TAG: tagged $COMMIT" >> "$GITHUB_STEP_SUMMARY"
+            fi
+            [ "$HASREL" = "1" ] || continue
+            if gh release view "$TAG" >/dev/null 2>&1; then echo "- $TAG: release exists" >> "$GITHUB_STEP_SUMMARY"; continue; fi
+            rm -rf stage && mkdir -p "stage/$SLUG"
+            for f in manifest.json code.js ui.html; do git show "$COMMIT:$f" > "stage/$SLUG/$f"; done
+            (cd stage && zip -qr "$SLUG-$TAG.zip" "$SLUG")
+            TAG="$TAG" node -e '
+              const t = require("./.github/release-history.json").tags.find((x) => x.tag === process.env.TAG);
+              require("fs").writeFileSync("notes.md", t.release.notes + "\n");
+              require("fs").writeFileSync("title.txt", t.release.title);'
+            LATEST=$([ "$TAG" = "$LAST_RELEASE" ] && echo "--latest" || echo "--latest=false")
+            gh release create "$TAG" --title "$(cat title.txt)" --notes-file notes.md $LATEST "stage/$SLUG-$TAG.zip"
+            echo "- $TAG: release re-created with $SLUG-$TAG.zip" >> "$GITHUB_STEP_SUMMARY"
+          done

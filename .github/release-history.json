@@ -1,0 +1,24 @@
+{
+  "_note": "The tags and releases this plugin had in rms-ds-figma-plugins, re-created here by the bootstrap-releases workflow (once each).",
+  "tags": [
+    {
+      "tag": "v4",
+      "commit": "1b9f9956ad37a6496ce83ae2ecde7594bd8346fc",
+      "message": "tokens-to-ink v4"
+    },
+    {
+      "tag": "v5",
+      "commit": "21f56dcebba88e97045cd334e5b3adbb5754efab",
+      "message": "tokens-to-ink v5"
+    },
+    {
+      "tag": "v6",
+      "commit": "04eb781415c8177925f902c1bd81030fd39dc15d",
+      "message": "tokens-to-ink v6",
+      "release": {
+        "title": "Tokens to Ink v6",
+        "notes": "- Added print-ready CMYK export with crop and registration marks, colour bars and real bleed, so files come out ready for the printer.\n- Redesigned the export screen as an inline layout with clear cards for the output and marks options, replacing the old pop-up.\n- Added options to convert placed images to CMYK and to export the TIFF with a transparent or white background."
+      }
+    }
+  ]
+}

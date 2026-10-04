@@ -1,0 +1,57 @@
+# Drafts a GitHub Release whenever a v<n> tag is pushed (rms-release makes it).
+#
+# Deliberately a DRAFT: nothing reaches anyone until it's reviewed and published by hand, right after publishing
+# the same version in Figma Community. The notes come from CHANGELOG.md so the two can't drift, and the sideload
+# zip is built here rather than uploaded from a laptop.
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  # Manual trigger: pass an existing tag and set dry_run to build the zip and render the notes without creating
+  # anything.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to draft a release for, e.g. v7'
+        required: true
+      dry_run:
+        description: 'Build and render notes only — create no release'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm check
+      # Fail rather than ship a stale bundle: the tag must point at code that rebuilds byte-identically.
+      - name: Check committed build output is up to date
+        run: git diff --exit-code
+      - run: pnpm package
+      - name: Draft the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          pnpm -s release-notes "$TAG" > notes.md
+          TITLE="$(node -p "require('./manifest.json').name") $TAG"
+          echo "### $TITLE" >> "$GITHUB_STEP_SUMMARY"
+          cat notes.md >> "$GITHUB_STEP_SUMMARY"
+          if [ "$DRY_RUN" = "true" ]; then echo "Dry run — no release created."; exit 0; fi
+          gh release create "$TAG" --draft --title "$TITLE" --notes-file notes.md dist/*.zip

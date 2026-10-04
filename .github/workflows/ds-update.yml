@@ -1,0 +1,119 @@
+# A design system release reaches this plugin on its own.
+#
+# rms-ds-figma-plugins sends a `ds-release` dispatch with the new version when it tags one; a daily check finds a
+# newer design system version on its own (or run this by hand). This job pins that version, installs, tests and
+# builds, then:
+#   • tests fail       → a pull request with the failing bump, no release;
+#   • nothing built changed (code.js, ui.html) → the pin is updated, no release;
+#   • otherwise        → the plugin version goes up by one (the next Figma Community version), the changelog gets
+#                        an entry, and it commits "build: ds-core vX.Y.Z", tags v<n>, pushes and drafts the release
+#                        with the sideload zip, all in this job (a push made with GITHUB_TOKEN starts no other
+#                        workflow, so the release cannot be left to the tag-push workflow).
+# Publishing that version in Figma Community stays a click; publish the draft release right after it.
+name: ds-update
+
+on:
+  repository_dispatch:
+    types: [ds-release]
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Design system version to update to, e.g. v1.0.1 (empty: the latest)'
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ds-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      DS_VERSION: ${{ github.event.client_payload.version || inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Find the version
+        run: |
+          PINNED="$(node -p 'require("./package.json").dependencies["@rms/ds-core"].split("#")[1]')"
+          if [ -z "$DS_VERSION" ]; then
+            DS_VERSION="$(git ls-remote --tags --refs https://github.com/rafaelmatosdasilva/rms-ds-figma-plugins 'v*' | sed 's#.*refs/tags/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)"
+          fi
+          if [ "$DS_VERSION" = "$PINNED" ] || [ -z "$DS_VERSION" ] || [ "$(printf '%s\n%s\n' "$PINNED" "$DS_VERSION" | sort -V | tail -1)" = "$PINNED" ]; then
+            echo "Pinned to $PINNED, the latest: nothing to do." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "SKIP=1" >> "$GITHUB_ENV"
+          fi
+          echo "DS_VERSION=$DS_VERSION" >> "$GITHUB_ENV"
+      - name: Check the version
+        if: env.SKIP != '1'
+        run: |
+          echo "$DS_VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' || { echo "Not a design system version: $DS_VERSION"; exit 1; }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Pin the new design system version
+        if: env.SKIP != '1'
+        run: |
+          node -e '
+            const fs = require("fs"); const p = JSON.parse(fs.readFileSync("package.json", "utf8"));
+            p.dependencies["@rms/ds-core"] = p.dependencies["@rms/ds-core"].replace(/#.*$/, "#" + process.env.DS_VERSION);
+            fs.writeFileSync("package.json", JSON.stringify(p, null, 2) + "\n");'
+          pnpm install --no-frozen-lockfile
+      - name: Test
+        if: env.SKIP != '1'
+        id: test
+        continue-on-error: true
+        run: pnpm test
+      - name: Tests failed, open a pull request instead
+        if: env.SKIP != '1' && steps.test.outcome == 'failure'
+        run: |
+          BRANCH="ds-core-$DS_VERSION"
+          git checkout -b "$BRANCH"
+          git commit -am "build: ds-core $DS_VERSION (tests fail)"
+          git push -f origin "$BRANCH"
+          gh pr create --head "$BRANCH" --title "build: ds-core $DS_VERSION (tests fail)" \
+            --body "The design system $DS_VERSION breaks this plugin's tests, so nothing was released. See the ds-update run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" || true
+          exit 1
+      - name: Build
+        if: env.SKIP != '1'
+        run: pnpm build
+      - name: Release when the plugin changed
+        if: env.SKIP != '1'
+        run: |
+          if git diff --quiet -- code.js ui.html; then
+            git commit -am "build: ds-core $DS_VERSION (no change to the plugin)"
+            git push origin main
+            echo "Nothing the plugin ships changed: pin updated, no release." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          export NEXT=$(node -p 'String(Number(require("./package.json").version) + 1)')
+          node -e '
+            const fs = require("fs"); const p = JSON.parse(fs.readFileSync("package.json", "utf8"));
+            p.version = process.env.NEXT; fs.writeFileSync("package.json", JSON.stringify(p, null, 2) + "\n");
+            const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+            const log = fs.readFileSync("CHANGELOG.md", "utf8");
+            const entry = `### v${process.env.NEXT} · ${today}\n\n- Updated to design system ${process.env.DS_VERSION}.\n\n`;
+            const at = log.search(/^### /m);
+            fs.writeFileSync("CHANGELOG.md", at < 0 ? log + "\n" + entry : log.slice(0, at) + entry + log.slice(at));' 
+          pnpm build
+          pnpm check
+          git add -A
+          git commit -m "build: ds-core $DS_VERSION"
+          git tag -a "v$NEXT" -m "$(node -p "require('./manifest.json').name") v$NEXT"
+          git push origin main --follow-tags
+          pnpm package
+          pnpm -s release-notes "v$NEXT" > notes.md
+          gh release create "v$NEXT" --draft --title "$(node -p "require('./manifest.json').name") v$NEXT" --notes-file notes.md dist/*.zip
+          echo "Drafted v$NEXT with design system $DS_VERSION. Publish v$NEXT in Figma Community, then publish the draft release." >> "$GITHUB_STEP_SUMMARY"
