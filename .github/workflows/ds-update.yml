@@ -1,15 +1,13 @@
-# A design system release reaches this plugin on its own.
+# A design system release reaches this plugin on its own, without a release of the plugin.
 #
 # rms-ds-figma-plugins sends a `ds-release` dispatch with the new version when it tags one; a daily check finds a
 # newer design system version on its own (or run this by hand). This job pins that version, installs, tests and
 # builds, then:
-#   • tests fail       → a pull request with the failing bump, no release;
-#   • nothing built changed (code.js, ui.html) → the pin is updated, no release;
-#   • otherwise        → the plugin version goes up by one (the next Figma Community version), the changelog gets
-#                        an entry, and it commits "build: ds-core vX.Y.Z", tags v<n>, pushes and drafts the release
-#                        with the sideload zip, all in this job (a push made with GITHUB_TOKEN starts no other
-#                        workflow, so the release cannot be left to the tag-push workflow).
-# Publishing that version in Figma Community stays a click; publish the draft release right after it.
+#   • tests fail       → a pull request with the failing bump, nothing committed to main;
+#   • otherwise        → it commits the pin and the rebuilt plugin to main ("build: ds-core vX.Y.Z"). The plugin
+#                        version stays as it is: no tag, no changelog entry, no draft release.
+# The update ships with the next version you publish: run `pnpm release` (rms-release) when you publish in Figma
+# Community, and the release workflow drafts that version with its sideload zip.
 name: ds-update
 
 on:
@@ -89,31 +87,16 @@ jobs:
       - name: Build
         if: env.SKIP != '1'
         run: pnpm build
-      - name: Release when the plugin changed
+      - name: Commit the update, no release
         if: env.SKIP != '1'
         run: |
           if git diff --quiet -- code.js ui.html; then
-            git commit -am "build: ds-core $DS_VERSION (no change to the plugin)"
-            git push origin main
-            echo "Nothing the plugin ships changed: pin updated, no release." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
+            MSG="build: ds-core $DS_VERSION (no change to the plugin)"
+            NOTE="Nothing the plugin ships changed: pin updated."
+          else
+            MSG="build: ds-core $DS_VERSION"
+            NOTE="Rebuilt with design system $DS_VERSION and committed. The plugin version is unchanged and no release was drafted; it ships with the next version you publish (pnpm release)."
           fi
-          export NEXT=$(node -p 'String(Number(require("./package.json").version) + 1)')
-          node -e '
-            const fs = require("fs"); const p = JSON.parse(fs.readFileSync("package.json", "utf8"));
-            p.version = process.env.NEXT; fs.writeFileSync("package.json", JSON.stringify(p, null, 2) + "\n");
-            const today = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-            const log = fs.readFileSync("CHANGELOG.md", "utf8");
-            const entry = `### v${process.env.NEXT} · ${today}\n\n- Updated to design system ${process.env.DS_VERSION}.\n\n`;
-            const at = log.search(/^### /m);
-            fs.writeFileSync("CHANGELOG.md", at < 0 ? log + "\n" + entry : log.slice(0, at) + entry + log.slice(at));' 
-          pnpm build
-          pnpm check
-          git add -A
-          git commit -m "build: ds-core $DS_VERSION"
-          git tag -a "v$NEXT" -m "$(node -p "require('./manifest.json').name") v$NEXT"
-          git push origin main --follow-tags
-          pnpm package
-          pnpm -s release-notes "v$NEXT" > notes.md
-          gh release create "v$NEXT" --draft --title "$(node -p "require('./manifest.json').name") v$NEXT" --notes-file notes.md dist/*.zip
-          echo "Drafted v$NEXT with design system $DS_VERSION. Publish v$NEXT in Figma Community, then publish the draft release." >> "$GITHUB_STEP_SUMMARY"
+          git commit -am "$MSG"
+          git push origin main
+          echo "$NOTE" >> "$GITHUB_STEP_SUMMARY"

@@ -1,7 +1,7 @@
 # Changelog
 
 Tokens to Ink is versioned to match the version published to the Figma Community, which Figma assigns.
-A design system update arrives as a release of its own (`build: ds-core vX.Y.Z`).
+A design system update is committed without a release (`build: ds-core vX.Y.Z`) and ships with the next version published.
 
 (Some earlier entries use decimals like `v5.1` for repo-only releases. That scheme was retired on 22 July 2026.)
 
