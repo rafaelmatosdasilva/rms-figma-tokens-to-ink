@@ -23,7 +23,7 @@
     height: auto;
     padding: var(--padding-l) 0;
     vertical-align: middle;
-    font-size: var(--m-size);
+    font-size: var(--typography-m-font-size);
     overflow: visible;
   }
 
@@ -31,7 +31,7 @@
   .color-table td:last-child  { padding-right: var(--padding-l); }
 
   .color-table tr:not(:last-child) {
-    background-image: linear-gradient(var(--border), var(--border));  /* dividerLine (N700 both modes) — horizontal row separator */
+    background-image: linear-gradient(var(--dividerLine-border), var(--dividerLine-border));  /* dividerLine (N700 both modes) — horizontal row separator */
     background-size: calc(100% - 32px) 1.2px;
     background-position: 16px bottom;
     background-repeat: no-repeat;
@@ -71,8 +71,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     min-width: 0;
-    color: var(--text);
-    font-size: var(--l-size);
+    color: var(--semantic-content-primary);
+    font-size: var(--typography-l-font-size);
     font-weight: 500;
     position: relative;
     cursor: default;
@@ -81,7 +81,7 @@
   .var-hex-sub {
     display: flex;
     align-items: center;
-    font-size: var(--m-size);
+    font-size: var(--typography-m-font-size);
     color: var(--hex-sub-color);
     white-space: nowrap;
     gap: var(--gap-s);
@@ -96,9 +96,9 @@
     margin-left: var(--gap-s);
   }
   .raw-warning-label {
-    font-size: var(--s-size);
+    font-size: var(--typography-s-font-size);
     color: var(--semantic-warning);
-    font-weight: var(--s-weight);
+    font-weight: var(--typography-s-font-weight);
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -116,8 +116,8 @@
 
   .td-cmyk {
     font-family: inherit;
-    font-size: var(--m-size);
-    color: var(--text);
+    font-size: var(--typography-m-font-size);
+    color: var(--semantic-content-primary);
     vertical-align: top;
     padding-left: 0;
     padding-right: var(--padding-l);
@@ -167,8 +167,8 @@
 
   /* Left segment — used only for single (non-forked) arrow */
   .fork-item .f-left {
-    height: var(--thickness);
-    background: var(--border);
+    height: var(--general-thickness);
+    background: var(--dividerLine-border);
     flex-shrink: 0;
     flex: 1;
   }
@@ -182,8 +182,8 @@
   /* Right flex line */
   .fork-item .f-right {
     flex: 1;
-    height: var(--thickness);
-    background: var(--border);
+    height: var(--general-thickness);
+    background: var(--dividerLine-border);
   }
 
   /* Arrowhead */
@@ -197,8 +197,8 @@
   }
   .fork-item .f-head svg {
     display: block;
-    stroke: var(--border);
-    stroke-width: var(--thickness);
+    stroke: var(--dividerLine-border);
+    stroke-width: var(--general-thickness);
     stroke-linecap: round;
     stroke-linejoin: round;
     fill: none;
@@ -239,11 +239,11 @@
     border-color: var(--input-auto-border);
   }
   .cmyk-group.cmyk-auto .cmyk-box {
-    color: var(--text);
+    color: var(--semantic-content-primary);
   }
   .cmyk-group.cmyk-auto .cmyk-box-wrap:focus-within {
     border-color: var(--input-border-focus);
-    background: var(--surface);
+    background: var(--input-background-filled);
   }
 
   .cmyk-spacer { width: var(--button-min-height); flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
@@ -284,7 +284,7 @@
 
   /* Stands in for the source chips when the list isn't tied to a selection. */
   .actionbar-note {
-    font-size: var(--m-size);
+    font-size: var(--typography-m-font-size);
     color: var(--text-muted);
     white-space: nowrap;
     overflow: hidden;
@@ -299,28 +299,28 @@
     flex: none;
     width: 4ch;
     text-align: right;
-    font-size: var(--s-size);
+    font-size: var(--typography-s-font-size);
     appearance: textfield;
     -webkit-appearance: none;
   }
   .cropmarks-bleed-input::-webkit-inner-spin-button,
   .cropmarks-bleed-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   #dpi-input, #tiff-dpi-input { width: 5ch; }   /* room for a 4-digit dpi (e.g. 1200) */
-  .cropmarks-unit { color: var(--input-label); font-size: var(--s-size); }
+  .cropmarks-unit { color: var(--input-label); font-size: var(--typography-s-font-size); }
   /* ── Pre-flight lists (output size + low-res images) ── */
   .preflight-section { display: flex; flex-direction: column; gap: var(--gap-xs); width: 100%; }
   /* Author display beats the UA [hidden] rule — restore it so an empty section (no
      artworks, or no images below target) shows nothing at all, not a stray header. */
   .preflight-section[hidden] { display: none; }
-  .preflight-header { font-size: var(--s-size); font-weight: var(--s-weight); color: var(--input-label); }
+  .preflight-header { font-size: var(--typography-s-font-size); font-weight: var(--typography-s-font-weight); color: var(--input-label); }
   .preflight-list { display: flex; flex-direction: column; max-height: 132px; overflow-y: auto; }
   .preflight-row {
     display: flex; align-items: center; gap: var(--gap-s);
     height: 32px; padding: 0 var(--padding-xs);
-    border-bottom: var(--thickness) solid var(--border);
+    border-bottom: var(--general-thickness) solid var(--dividerLine-border);
   }
-  .preflight-row .pf-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--m-size); }
-  .preflight-row .pf-meta { flex-shrink: 0; color: var(--text-secondary); font-size: var(--s-size); white-space: nowrap; }
+  .preflight-row .pf-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--typography-m-font-size); }
+  .preflight-row .pf-meta { flex-shrink: 0; color: var(--semantic-content-secondary); font-size: var(--typography-s-font-size); white-space: nowrap; }
   .preflight-focus-btn { flex-shrink: 0; }   /* buttonTertiary icon button — "Focus in canvas" */
 
   /* ── Inline Export screen (DS 2120:48124) ── */
@@ -330,7 +330,7 @@
   #view-tabs button { flex: 1 1 0; min-width: 0; }
   .export-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; }
   .export-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: var(--padding-l); display: flex; flex-direction: column; gap: var(--gap-xl); }
-  .export-section-label { font-size: var(--s-size); font-weight: var(--s-weight); line-height: var(--s-lh); color: var(--text-secondary); }
+  .export-section-label { font-size: var(--typography-s-font-size); font-weight: var(--typography-s-font-weight); line-height: var(--typography-s-line-height); color: var(--semantic-content-secondary); }
   .export-format { display: flex; flex-direction: column; gap: var(--gap-m); }
   .export-format-radios { display: flex; gap: var(--gap-xxl); align-items: center; }
   /* Two side-by-side cards when there's room; below ~two comfortable columns they wrap to a
@@ -707,7 +707,7 @@
     const ITEM_H = 24, GAP = 8, STEP = ITEM_H + GAP;
     const W = 16, R = 6, S = 1.5;
     const totalH = count * ITEM_H + (count - 1) * GAP;
-    const color = 'var(--border)';
+    const color = 'var(--dividerLine-border)';
 
     // Center Y of each item
     const cy = i => i * STEP + ITEM_H / 2;

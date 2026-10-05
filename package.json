@@ -21,7 +21,7 @@
     "release-notes": "rms-release-notes"
   },
   "dependencies": {
-    "@rms/ds-core": "github:rafaelmatosdasilva/rms-ds-figma-plugins#v1.0.3"
+    "@rms/ds-core": "github:rafaelmatosdasilva/rms-ds-figma-plugins#v2.0.0"
   },
   "devDependencies": {
     "vitest": "^2.1.0"
