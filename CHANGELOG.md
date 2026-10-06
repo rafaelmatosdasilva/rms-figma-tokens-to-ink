@@ -39,6 +39,9 @@ Landed since publishing, and going out with the next Community release:
   canvas, and Rescan checks again. The lists no longer sit inside the Output card.
 - The Format choice and the Preflight dialog are built from the design system's own radio
   group, modal, overlay, section divider and list rows.
+- Each colour in the list is the design system's table row, as the design draws it: its name
+  and value in the m text style with more room above and below, the connector, then its print
+  values, and a line under every row but the last.
 
 ### v4 · 17 July 2026
 Published to Figma Community. Later shared design-system work landed here without

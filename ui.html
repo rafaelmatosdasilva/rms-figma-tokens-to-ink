@@ -10,85 +10,15 @@
   /* Plugin-local vars — no DS token equivalent */
   :root { --pantone-focus: #b06aff; }
 
-  .color-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-
-  /* Output column takes half the table so the CMYK / Pantone / Vinyl inputs grow
-     with the window — at the 600px default this still resolves to the old 300px. */
-  .color-table col:nth-child(1) { width: auto; }
-  .color-table col:nth-child(2) { width: 56px; }
-  .color-table col:nth-child(3) { width: 50%; }
-
-  .color-table td {
-    height: auto;
-    padding: var(--padding-l) 0;
-    vertical-align: middle;
-    font-size: var(--typography-m-font-size);
-    overflow: visible;
-  }
-
-  .color-table td:first-child { padding-left: var(--padding-l); }
-  .color-table td:last-child  { padding-right: var(--padding-l); }
-
-  .color-table tr:not(:last-child) {
-    background-image: linear-gradient(var(--dividerLine-border), var(--dividerLine-border));  /* dividerLine (N700 both modes) — horizontal row separator */
-    background-size: calc(100% - 32px) 1.2px;
-    background-position: 16px bottom;
-    background-repeat: no-repeat;
-  }
-
-  .td-variable {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: var(--gap-m);
-    min-width: 0;
-    height: 100%;
-  }
-  .td-variable .var-info {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-xs);
-    min-width: 0;
-    flex: 1;
-  }
-
-  .var-name-row {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    min-width: 0;
-  }
-
+  /* The colour list: one DS table/row (1:178) per colour, from theme.css. The plugin adds only its swatch stacking. */
   /* Swatch identity (size, radius, border, empty stripes) comes from the DS .swatch base
      in theme.css — .color-swatch only adds plugin-local stacking context. */
   .color-swatch {
     position: relative;
     z-index: 2;
   }
-  .var-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-    color: var(--semantic-content-primary);
-    font-size: var(--typography-l-font-size);
-    font-weight: 500;
-    position: relative;
-    cursor: default;
-  }
-
-  .var-hex-sub {
-    display: flex;
-    align-items: center;
-    font-size: var(--typography-m-font-size);
-    color: var(--hex-sub-color);
-    white-space: nowrap;
-    gap: var(--gap-s);
-  }
+  /* The name's tooltip shows its full path; the cursor stays an arrow. */
+  .var-name { cursor: default; }
 
   /* ── Raw (non-variable) color row ── */
   .raw-warning-icon {
@@ -112,38 +42,8 @@
     margin-left: auto;
     margin-right: -8px;
   }
-  .color-table tr.row-raw .var-name {
-    color: var(--text-muted);
-    font-weight: 500;
-  }
+  .row-raw .var-name { color: var(--text-muted); }
 
-  .td-cmyk {
-    font-family: inherit;
-    font-size: var(--typography-m-font-size);
-    color: var(--semantic-content-primary);
-    vertical-align: top;
-    padding-left: 0;
-    padding-right: var(--padding-l);
-  }
-
-  /* ── Fork status column ── */
-  .td-status {
-    vertical-align: top;
-    padding-left: var(--padding-l) !important;
-    padding-right: 0 !important;
-    padding-top: var(--padding-l) !important;
-    width: 56px;
-    min-width: 56px;
-    max-width: 56px;
-  }
-
-  /* Wrapper: swatch on left, arrows on right */
-  .status-cell {
-    display: flex;
-    align-items: flex-start;
-    gap: 0;
-    width: 100%;
-  }
   /* Container for all fork arrows */
   .status-fork {
     display: flex;
@@ -252,25 +152,8 @@
   .cmyk-spacer { width: var(--button-min-height); flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
   .cmyk-group.cmyk-readonly .cmyk-box-wrap { background: transparent; border-color: var(--input-auto-border); }
   .cmyk-box[readonly], .output-text-input[readonly] { pointer-events: none; opacity: 0.8; }
-  /* Placement only — appearance comes from .tooltipButton in the base. This is a TABLE
-     row (.td-variable), not a buttonList, so the DS buttonList flush-tooltip rule does
-     not apply here; the small margin keeps it legible next to the variable name. */
-  .lib-info { vertical-align: middle; margin-left: var(--gap-s); }
 
-  /* ── Output cell (CMYK + optional outputs stacked) ── */
-  .output-cell {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: var(--gap-m);
-    width: 100%;
-  }
-  .output-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    column-gap: var(--gap-s);
-  }
+  /* ── Outputs (CMYK, then Pantone, RAL, Vinyl): the row's DS Output column and its rows, from theme.css ── */
   .output-row > * { margin-left: 0 !important; margin-right: 0 !important; }
   .output-add-row {
     justify-content: flex-start;
@@ -381,12 +264,8 @@
       </div>
     </div>
     <div class="scroll-area">
-      <table class="color-table">
-        <colgroup>
-          <col /><col /><col />
-        </colgroup>
-        <tbody id="color-body"></tbody>
-      </table>
+      <!-- One DS table/row (1:178) per colour. -->
+      <div class="color-table" id="color-body"></div>
     </div>
   </div>
 
@@ -688,7 +567,7 @@
 
   // ── Rebuild fork arrows for a row based on live output count ─────────
   function updateForkArrows(outputCell) {
-    const row = outputCell.closest('tr');
+    const row = outputCell.closest('.tableRow');
     if (!row) return;
     const statusCell = row.querySelector('.status-fork');
     if (!statusCell) return;
@@ -750,7 +629,7 @@
         boxes.forEach((b, j) => { b.value = _focusedGroup._original[j]; });
         // Revert swatch
         const orig = _focusedGroup._original.map(Number);
-        const swatch = _focusedGroup.closest('td').querySelector('.cmyk-swatch');
+        const swatch = _focusedGroup.closest('.output-row').querySelector('.cmyk-swatch');
         if (swatch) {
           const cr = Math.round(255 * (1 - orig[0]/100) * (1 - orig[3]/100));
           const cg = Math.round(255 * (1 - orig[1]/100) * (1 - orig[3]/100));
@@ -810,7 +689,7 @@
     const boxes = group.querySelectorAll(".cmyk-box");
     const vals = Array.from(boxes).map(b => Math.min(100, Math.max(0, parseInt(b.value, 10) || 0)));
     const [c, m, y, k] = vals;
-    const swatch = group.closest('td').querySelector(".cmyk-swatch");
+    const swatch = group.closest('.output-row').querySelector(".cmyk-swatch");
     if (!swatch) return;
     const cr = Math.round(255 * (1 - c/100) * (1 - k/100));
     const cg = Math.round(255 * (1 - m/100) * (1 - k/100));
@@ -846,7 +725,7 @@
     boxes.forEach(b => { b.value = clamp(parseInt(b.value, 10)); });
 
     // Update the swatch preview
-    const swatch = group.closest('td').querySelector(".cmyk-swatch");
+    const swatch = group.closest('.output-row').querySelector(".cmyk-swatch");
     if (swatch) {
       const cr = Math.round(255 * (1 - c/100) * (1 - k/100));
       const cg = Math.round(255 * (1 - m/100) * (1 - k/100));
@@ -3124,7 +3003,7 @@
           `<button class="buttonPrimary" data-output-type="${t.key}" data-color-var-id="${colorVarId}" data-idx="${idx}"><span>${t.label}</span></button>`
         ).join('');
         addRow = document.createElement('div');
-        addRow.className = 'output-row output-add-row';
+        addRow.className = 'tableRow-outputRow output-row output-add-row';
         addRow.innerHTML = `<div class="output-picker" data-color-var-id="${colorVarId}" data-idx="${idx}"><button class="buttonSecondary buttonAddOutput" data-tip="Add output"><svg width="16" height="16"><use href="#icon-plus"/></svg></button><div class="output-picker-flyout">${pickerBtns}</div></div>`;
         outputCell.appendChild(addRow);
         attachAddRowListeners(addRow, outputCell);
@@ -3164,11 +3043,11 @@
     let newRow;
     if (moreAvailable) {
       newRow = document.createElement('div');
-      newRow.className = 'output-row';
+      newRow.className = 'tableRow-outputRow output-row';
       newRow.innerHTML = inputRowHtml;
       outputCell.insertBefore(newRow, addRow);
     } else {
-      addRow.className = 'output-row';
+      addRow.className = 'tableRow-outputRow output-row';
       addRow.innerHTML = inputRowHtml;
       newRow = addRow;
     }
@@ -3392,7 +3271,7 @@
         }
       });
 
-      let html = "";
+      const tableRows = [];   // one DS table/row per colour: [extra class, its Content]
       msg.data.forEach((r, idx) => {
         if (r.source === "raw") return;
         if (r.source === "raw_unused") {
@@ -3400,12 +3279,11 @@
           const focusBtn = r.nodeIds && r.nodeIds.length
             ? `<button class="buttonQuaternary buttonUnpair buttonUnpair-raw" data-node-ids="${nodeIdList}" data-tip="Select in canvas">${focusIcon}</button>`
             : '';
-          html += `<tr class="row-raw">
-            <td colspan="3"><div class="td-variable" style="padding-right:16px;">
+          tableRows.push([' row-raw', `<div class="tableRow-variable">
               <div class="swatch color-swatch" style="background:${r.hex}"></div>
-              <div class="var-info">
-                <div class="var-name-row">
-                  <span class="var-name">${r.hex}</span>
+              <div class="tableRow-info">
+                <div class="tableRow-nameRow">
+                  <span class="tableRow-name var-name">${r.hex}</span>
                   <span class="raw-warning-icon">${warningIcon}</span>
                   <span class="raw-warning-label">Not a variable</span>
                 </div>
@@ -3413,8 +3291,7 @@
               <div class="raw-warning-cell">
                 ${focusBtn}
               </div>
-            </div></td>
-          </tr>`;
+            </div>`]);
           return;
         }
 
@@ -3422,8 +3299,8 @@
         const name = r.source === "variable" ? r.name : r.hex;
         const isSystem = r.hasCmykVariable;
 
-        // Arrow column — left empty; updateForkArrows fills it after render
-        const arrowCol = `<div class="status-cell"><div class="status-fork"></div></div>`;
+        // Connector — left empty; updateForkArrows fills it after render
+        const arrowCol = `<div class="tableRow-connector"><div class="status-fork"></div></div>`;
 
         // CMYK swatch
         const cr = Math.round(255 * (1 - cmyk.c/100) * (1 - cmyk.k/100));
@@ -3445,7 +3322,7 @@
             : `<span class="cmyk-spacer"></span>`);
         const makeBox = (lbl, val) =>
           `<div class="inputWrap cmyk-box-wrap"><span class="inputLabel cmyk-lbl">${lbl}</span><input class="inputField cmyk-box" type="text" inputmode="numeric" maxlength="3" autocomplete="off" value="${val}"${readOnly ? ' readonly' : ''} /></div>`;
-        const cmykRow = `<div class="output-row"><div class="swatch color-swatch cmyk-swatch" style="background:${cmykHex}"></div><div class="${groupClass}" data-color-var-id="${r.colorVarId || ''}" data-idx="${idx}" data-hex="${r.hex || ''}" data-auto-c="${autoC.c}" data-auto-m="${autoC.m}" data-auto-y="${autoC.y}" data-auto-k="${autoC.k}">${makeBox('C',cmyk.c)}${makeBox('M',cmyk.m)}${makeBox('Y',cmyk.y)}${makeBox('K',cmyk.k)}</div>${cmykUnpairBtn}</div>`;
+        const cmykRow = `<div class="tableRow-outputRow output-row"><div class="swatch color-swatch cmyk-swatch" style="background:${cmykHex}"></div><div class="${groupClass}" data-color-var-id="${r.colorVarId || ''}" data-idx="${idx}" data-hex="${r.hex || ''}" data-auto-c="${autoC.c}" data-auto-m="${autoC.m}" data-auto-y="${autoC.y}" data-auto-k="${autoC.k}">${makeBox('C',cmyk.c)}${makeBox('M',cmyk.m)}${makeBox('Y',cmyk.y)}${makeBox('K',cmyk.k)}</div>${cmykUnpairBtn}</div>`;
 
         // Extra output rows (Pantone, RAL, Vinyl)
         // Render in the exact order they appeared in the DOM before rebuild,
@@ -3483,7 +3360,7 @@
           const swatchCls = `swatch color-swatch output-swatch output-swatch-${typeKey}${resolvedHex ? '' : ' empty'}`;
           const swatchStyle = resolvedHex ? ` style="background:${resolvedHex}"` : '';
           const removeBtn = readOnly ? `<span class="cmyk-spacer"></span>` : `<button class="buttonQuaternary buttonUnpair buttonUnpair-output" data-output-type="${typeKey}" data-color-var-id="${r.colorVarId || ''}" data-tip="Remove ${t.label}">${removeIcon}</button>`;
-          extraRows += `<div class="output-row"><div class="${swatchCls}"${swatchStyle}></div><div class="inputWrap output-text-wrap${readOnly ? ' output-readonly' : ''}" data-output-type="${typeKey}" data-color-var-id="${r.colorVarId || ''}" data-idx="${idx}"><span class="inputLabel output-lbl lbl-${typeKey}">${t.label}</span><input class="inputField output-text-input" type="text" value="${esc(val)}"${readOnly ? ' readonly' : ''} /></div>${removeBtn}</div>`;
+          extraRows += `<div class="tableRow-outputRow output-row"><div class="${swatchCls}"${swatchStyle}></div><div class="inputWrap output-text-wrap${readOnly ? ' output-readonly' : ''}" data-output-type="${typeKey}" data-color-var-id="${r.colorVarId || ''}" data-idx="${idx}"><span class="inputLabel output-lbl lbl-${typeKey}">${t.label}</span><input class="inputField output-text-input" type="text" value="${esc(val)}"${readOnly ? ' readonly' : ''} /></div>${removeBtn}</div>`;
         });
 
         // Determine which types are still available to add (hidden in read-only)
@@ -3495,26 +3372,25 @@
           ? `<div class="output-picker" data-color-var-id="${r.colorVarId || ''}" data-idx="${idx}"><button class="buttonSecondary buttonAddOutput" data-tip="Add output"><svg width="16" height="16"><use href="#icon-plus"/></svg></button><div class="output-picker-flyout">${pickerBtns}</div></div>`
           : '';
 
-        const cmykCell = `<div class="output-cell"${readOnly ? ' data-readonly="1"' : ''}>${cmykRow}${extraRows}${addBtn ? `<div class="output-row output-add-row">${addBtn}</div>` : ''}</div>`;
+        const cmykCell = `<div class="tableRow-output output-cell"${readOnly ? ' data-readonly="1"' : ''}>${cmykRow}${extraRows}${addBtn ? `<div class="tableRow-outputRow output-row output-add-row">${addBtn}</div>` : ''}</div>`;
 
         const infoBtn = readOnly
           ? `<span class="tooltipButton lib-info" data-color-var-id="${r.colorVarId || ''}" data-lib-name="" data-tip="Read-only because it comes from an external library.">${infoIcon}</span>`
           : '';
 
-        html += `<tr>
-          <td><div class="td-variable">
+        tableRows.push(['', `<div class="tableRow-variable">
             <div class="swatch color-swatch" style="background:${r.hex}"></div>
-            <div class="var-info">
-              <div class="var-name-row"><span class="var-name" data-tip="${esc(name.replace(/\//g, ' /\n'))}">${esc(name)}</span>${infoBtn}</div>
-              <div class="var-hex-sub">${r.hex}</div>
+            <div class="tableRow-info">
+              <div class="tableRow-nameRow"><span class="tableRow-name var-name" data-tip="${esc(name.replace(/\//g, ' /\n'))}">${esc(name)}</span>${infoBtn}</div>
+              <div class="tableRow-value">${r.hex}</div>
             </div>
-          </div></td>
-          <td class="td-status">${arrowCol}</td>
-          <td class="td-cmyk">${cmykCell}</td>
-        </tr>`;
+          </div>
+          ${arrowCol}
+          ${cmykCell}`]);
       });
 
-      document.getElementById("color-body").innerHTML = html;
+      document.getElementById("color-body").innerHTML = tableRows.map(([cls, content], i) =>
+        `<div class="tableRow${cls}"><div class="tableRow-content">${content}</div>${i < tableRows.length - 1 ? '<div class="dividerLine"></div>' : ''}</div>`).join('');
 
 
       // ── Raw focus buttons ──
