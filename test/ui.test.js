@@ -129,10 +129,30 @@ describe('tokens-to-ink UI — scan results', () => {
     ]));
     await painted();
 
-    expect(ui.$$('#color-body tr')).toEqual([]);
+    expect(ui.$$('#color-body .tableRow')).toEqual([]);
     expect(ui.$('#no-colors-state').style.display).toBe('flex');
     // Nothing to export either.
     expect(ui.$('#view-tabs-row').style.display).toBe('none');
+  });
+
+  it('draws each colour as the system\'s table/row: what it is, its connector and its outputs, a line under all but the last', async () => {
+    ui = loadUI(UI);
+    ui.receive(scanResults([
+      colour({ colorVarId: 'v1', name: 'brand/primary', hex: '#FF0000' }),
+      colour({ colorVarId: 'v2', name: 'brand/secondary', hex: '#00FF00' }),
+    ]));
+    await painted();
+
+    const rows = ui.$$('#color-body > .tableRow');
+    expect(rows.length).toBe(2);
+    for (const row of rows) {
+      const content = row.querySelector(':scope > .tableRow-content');
+      expect([...content.children].map((el) => el.className.split(' ')[0])).toEqual(['tableRow-variable', 'tableRow-connector', 'tableRow-output']);
+      expect(content.querySelector('.tableRow-name').textContent).toMatch(/^brand\//);
+      expect(content.querySelector('.tableRow-value').textContent).toMatch(/^#/);
+      expect(content.querySelectorAll('.tableRow-output > .tableRow-outputRow').length).toBeGreaterThan(0);
+    }
+    expect(rows.map((r) => !!r.querySelector(':scope > .dividerLine'))).toEqual([true, false]);
   });
 
   it('reveals the results panel once there is something to show', async () => {
