@@ -22,7 +22,7 @@ let ui;
 afterEach(() => { if (ui) { ui.close(); ui = null; } });
 
 describe('tokens-to-ink — preflight end-to-end (real code.js → real UI)', () => {
-  it('a low-res image scanned by code.js renders in the export image list', async () => {
+  it('a low-res image scanned by code.js renders in the Preflight modal', async () => {
     // 1) The real backend produces the message for a low-res selection.
     const { send, postedOf } = await loadPlugin(CODE, scene());
     await send({ type: 'preflight-request', dpi: 300, scanImages: true });
@@ -36,9 +36,10 @@ describe('tokens-to-ink — preflight end-to-end (real code.js → real UI)', ()
     t.checked = true; t.dispatchEvent(new ui.window.Event('change'));
     ui.receive(imagesMsg);
 
-    // The low-res image is shown.
-    expect(ui.$('#preflight-images-section').hidden).toBe(false);
-    const rows = ui.$$('#preflight-images .preflight-row');
+    // The low-res image is listed in the Preflight modal.
+    ui.click(ui.$('#export-preflight-btn'));
+    ui.receive(imagesMsg);
+    const rows = ui.$$('#preflight-slot .listItem');
     expect(rows).toHaveLength(1);
     expect(rows[0].textContent).toContain('Photo');
     expect(ui.errors).toEqual([]);

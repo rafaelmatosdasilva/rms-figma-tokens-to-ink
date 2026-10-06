@@ -33,6 +33,13 @@ removed; everything it carried is included here.)
 - Dark mode colours and spacing snapped onto the design system's scale, replacing loose
   numbers that matched nothing in the system.
 
+Landed since publishing, and going out with the next Community release:
+- Preflight opens from the export bar as a dialog, as the design draws it: images below the
+  downsample target and images that stay RGB are listed under Errors, each with Focus in
+  canvas, and Rescan checks again. The lists no longer sit inside the Output card.
+- The Format choice and the Preflight dialog are built from the design system's own radio
+  group, modal, overlay, section divider and list rows.
+
 ### v4 · 17 July 2026
 Published to Figma Community. Later shared design-system work landed here without
 a new Community release, since none of it changed how the plugin works:

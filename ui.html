@@ -310,21 +310,9 @@
   .cropmarks-bleed-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   #dpi-input, #tiff-dpi-input { width: 5ch; }   /* room for a 4-digit dpi (e.g. 1200) */
   .cropmarks-unit { color: var(--input-label); font-size: var(--typography-s-font-size); }
-  /* ── Pre-flight lists (output size + low-res images) ── */
-  .preflight-section { display: flex; flex-direction: column; gap: var(--gap-xs); width: 100%; }
-  /* Author display beats the UA [hidden] rule — restore it so an empty section (no
-     artworks, or no images below target) shows nothing at all, not a stray header. */
-  .preflight-section[hidden] { display: none; }
-  .preflight-header { font-size: var(--typography-s-font-size); font-weight: var(--typography-s-font-weight); color: var(--input-label); }
-  .preflight-list { display: flex; flex-direction: column; max-height: 132px; overflow-y: auto; }
-  .preflight-row {
-    display: flex; align-items: center; gap: var(--gap-s);
-    height: 32px; padding: 0 var(--padding-xs);
-    border-bottom: var(--general-thickness) solid var(--dividerLine-border);
-  }
-  .preflight-row .pf-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--typography-m-font-size); }
-  .preflight-row .pf-meta { flex-shrink: 0; color: var(--semantic-content-secondary); font-size: var(--typography-s-font-size); white-space: nowrap; }
-  .preflight-focus-btn { flex-shrink: 0; }   /* buttonTertiary icon button — "Focus in canvas" */
+  /* ── Preflight modal (DS 2225:28241): the DS modal is 408 wide on this screen; its list scrolls. ── */
+  #preflight-modal .modal-card { width: 408px; }
+  #preflight-slot { max-height: 262px; overflow-y: auto; }
 
   /* ── Inline Export screen (DS 2120:48124) ── */
   /* #view-tabs-row is a bare DS .actionbar (48px, padding/m t+b) — geometry from the base. */
@@ -334,8 +322,6 @@
   .export-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; }
   .export-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: var(--padding-l); display: flex; flex-direction: column; gap: var(--gap-xl); }
   .export-section-label { font-size: var(--typography-s-font-size); font-weight: var(--typography-s-font-weight); line-height: var(--typography-s-line-height); color: var(--semantic-content-secondary); }
-  .export-format { display: flex; flex-direction: column; gap: var(--gap-m); }
-  .export-format-radios { display: flex; gap: var(--gap-xxl); align-items: center; }
   /* Two side-by-side cards when there's room; below ~two comfortable columns they wrap to a
      single stacked column (flex-basis is the wrap threshold, grow fills the row once wrapped). */
   .export-cards { display: flex; flex-wrap: wrap; gap: var(--gap-xl); align-items: stretch; }
@@ -407,9 +393,9 @@
   <!-- Export panel — inline export screen (DS 2120:48124): format radios + two Cards of switches. -->
   <div id="export-panel" class="export-panel" style="display:none;">
     <div class="scroll-area export-scroll">
-      <div class="export-format">
-        <span class="export-section-label">Format</span>
-        <div class="export-format-radios">
+      <div class="radioButtonGroup">
+        <span class="radioButtonGroup-label" id="export-format-label">Format</span>
+        <div class="radioButtonGroup-slot" role="radiogroup" aria-labelledby="export-format-label">
           <label class="radioButton"><input type="radio" name="export-format" id="fmt-pdf" value="pdf" checked class="radioButton-input"><span class="radioButton-circle"></span><span class="radioButton-label">PDF CMYK Vector</span></label>
           <label class="radioButton"><input type="radio" name="export-format" id="fmt-tiff" value="tiff" class="radioButton-input"><span class="radioButton-circle"></span><span class="radioButton-label">TIFF CMYK Raster</span></label>
         </div>
@@ -431,14 +417,6 @@
                 <input type="number" id="dpi-input" class="inputField cropmarks-bleed-input" min="72" max="1200" step="10" value="300" aria-label="Target resolution in DPI">
                 <span class="cropmarks-unit">dpi</span>
               </div>
-            </div>
-            <div class="preflight-section" id="preflight-images-section" hidden>
-              <span class="preflight-header" id="preflight-images-header">Images under target dpi:</span>
-              <div class="preflight-list" id="preflight-images"></div>
-            </div>
-            <div class="preflight-section" id="preflight-cmyk-section" hidden>
-              <span class="preflight-header" id="preflight-cmyk-header">Won't convert to CMYK — stays RGB:</span>
-              <div class="preflight-list" id="preflight-cmyk"></div>
             </div>
           </div>
         </section>
@@ -487,7 +465,24 @@
     <div class="actionbar export-bottom-bar">
       <button class="buttonTertiary" id="export-savedefault-btn"><span>Save as default</span></button>
       <div style="flex:1;min-width:0;"></div>
+      <button class="buttonSecondary" id="export-preflight-btn" aria-haspopup="dialog"><span>Preflight</span></button>
       <button class="buttonPrimary" id="export-confirm-btn"><span id="export-confirm-label">Export PDF</span><svg width="16" height="16"><use href="#icon-export"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- Preflight (DS screen 2225:28241): the DS modal over the DS overlay. Its slot holds a
+     dividerSection per severity and a listItem per finding, each with a Focus in canvas action. -->
+<div id="preflight-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="preflight-title">
+  <div class="overlay modal-overlay"></div>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2 class="modal-title" id="preflight-title">Preflight</h2>
+      <button class="buttonSecondary modal-close" id="preflight-close" aria-label="Close"><svg width="16" height="16"><use href="#icon-cross"/></svg></button>
+    </div>
+    <div class="modal-slot" id="preflight-slot"></div>
+    <div class="modal-footer">
+      <button class="buttonPrimary" id="preflight-rescan"><span>Rescan</span><svg width="16" height="16"><use href="#icon-update"/></svg></button>
     </div>
   </div>
 </div>
@@ -2730,20 +2725,53 @@
     parent.postMessage({ pluginMessage: { type: "export-frames" } }, "*");
   }
 
-  // A pre-flight row: name + meta + the shared "Focus in canvas" button (a buttonTertiary
-  // with the #icon-focus glyph, matching the source-focus-btn chips). Clicking focuses the node.
-  function preflightRow(id, name, meta) {
-    return `<div class="preflight-row">`
-         + `<span class="pf-name">${esc(name)}</span>`
-         + `<span class="pf-meta">${esc(meta)}</span>`
-         + `<button class="buttonTertiary preflight-focus-btn" data-node-id="${esc(id)}" data-tip="Focus in canvas">${focusIcon}</button>`
+  // Preflight (DS screen 2225:28241). The latest scan's findings, shown in the Preflight modal:
+  // a DS dividerSection per severity (Figma puts low-resolution and stays-RGB images under Errors)
+  // and a DS listItem per finding, its action the shared Focus in canvas buttonTertiary.
+  let _preflight = { target: 0, images: [], unconvertible: [], scanning: false };
+  const imageIcon = `<svg width="16" height="16"><use href="#icon-image"/></svg>`;
+  const colorIcon = `<svg width="16" height="16"><use href="#icon-var-color"/></svg>`;
+  function preflightItem(id, icon, title) {
+    return `<div class="listItem">`
+         +   `<div class="listItem-row">`
+         +     `<span class="listItem-icon">${icon}</span>`
+         +     `<div class="listItem-main"><span class="listItem-title">${esc(title)}</span></div>`
+         +     `<button class="buttonTertiary listItem-action" data-node-id="${esc(id)}" data-tip="Focus in canvas" aria-label="Focus in canvas">${focusIcon}</button>`
+         +   `</div>`
+         +   `<div class="dividerLine listItem-divider"></div>`
          + `</div>`;
   }
-  function wirePreflightFocus(listEl) {
-    listEl.querySelectorAll(".preflight-focus-btn").forEach((btn) => {
-      btn.addEventListener("click", () =>
-        parent.postMessage({ pluginMessage: { type: "focus-node", nodeId: btn.dataset.nodeId } }, "*"));
-    });
+  function preflightSection(label, tier, items) {
+    return `<div class="dividerSection"><div class="dividerSection-content">`
+         +   `<span class="tier-dot ${tier}"></span>${esc(label)}<span class="div-sep">·</span><span class="count">${items.length}</span>`
+         + `</div></div>` + items.join("");
+  }
+  // Paint the modal from _preflight. Rescan stays disabled while a scan runs, as Figma draws it.
+  function renderPreflightModal() {
+    const slot = document.getElementById("preflight-slot");
+    const rescan = document.getElementById("preflight-rescan");
+    if (!slot) return;
+    if (rescan) rescan.disabled = _preflight.scanning;
+    const errors = [
+      ..._preflight.images.map((r) => preflightItem(r.id, imageIcon, `${r.name} — ${r.meta} (below ${_preflight.target} dpi target)`)),
+      ..._preflight.unconvertible.map((r) => preflightItem(r.id, colorIcon, `${r.name} — stays RGB (${r.meta})`)),
+    ];
+    if (errors.length) {
+      slot.innerHTML = preflightSection("Errors", "high", errors);
+      slot.querySelectorAll(".listItem-action").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          parent.postMessage({ pluginMessage: { type: "focus-node", nodeId: btn.dataset.nodeId } }, "*"));
+      });
+      return;
+    }
+    const checking = _downsample || _imagesCmyk;
+    const title = _preflight.scanning ? "Checking images…" : checking ? "No issues found" : "Nothing to check";
+    const desc = _preflight.scanning ? "Preflight is reading the images in the selection."
+      : checking ? "Every image in the selection is ready for print."
+      : "Preflight checks images when Downsample images or Convert RGB images to CMYK is on.";
+    slot.innerHTML = `<div class="empty-state"><div class="empty-state-content"><div class="empty-state-text">`
+                   + `<p class="empty-state-title">${esc(title)}</p><p class="empty-state-desc">${esc(desc)}</p>`
+                   + `</div></div></div>`;
   }
   // Show the right cards for the chosen format. Marks-and-bleed applies to BOTH formats, so
   // it's always visible. The Output card (PDF/X, Pantone, downsample) is PDF-only; the Raster
@@ -2756,19 +2784,9 @@
     if (out) out.hidden = !pdf;
     if (marks) marks.hidden = false;   // marks/bleed available for PDF and TIFF
     if (tiff) tiff.hidden = pdf;
-  }
-  // Fill one pre-flight list section (name + meta + focus button per row). Hidden when empty.
-  function fillPreflightSection(secId, listId, rows) {
-    const sec = document.getElementById(secId), list = document.getElementById(listId);
-    if (!sec || !list) return;
-    if (rows && rows.length) {
-      list.innerHTML = rows.map((r) => preflightRow(r.id, r.name, r.meta)).join("");
-      wirePreflightFocus(list);
-      sec.hidden = false;
-    } else {
-      list.innerHTML = "";
-      sec.hidden = true;
-    }
+    // Preflight reads the PDF's images; TIFF has nothing for it to check.
+    const pf = document.getElementById("export-preflight-btn");
+    if (pf) pf.style.display = pdf ? "" : "none";
   }
   // The scan reports whether the selection has any images (drives the tab reveal + the pending
   // open). Sent early — before the slower list scans — so the modal opens without waiting.
@@ -2781,19 +2799,17 @@
     if (typeof msg.hasImages === "boolean") applyPreflightSelection(msg.hasImages);
     // Low-res list: only where downsampling applies (PDF + toggle on) and something is below.
     // The header always reflects the CURRENT dpi target.
-    const target = msg.target || _downsampleDpi;
-    const imgs = (_exportFormat === "pdf" && _downsample) ? (msg.images || []) : [];
-    const hdr = document.getElementById("preflight-images-header");
-    if (hdr && imgs.length) hdr.textContent = `Images under ${target} dpi:`;
-    fillPreflightSection("preflight-images-section", "preflight-images", imgs);
+    _preflight.target = msg.target || _downsampleDpi;
+    _preflight.images = (_exportFormat === "pdf" && _downsample) ? (msg.images || []) : [];
     // Un-convertible list: only meaningful when the CMYK-images toggle is ON (RGB mode never
     // converts, so nothing "stays RGB unexpectedly").
-    const bad = (_exportFormat === "pdf" && _imagesCmyk) ? (msg.unconvertible || []) : [];
-    fillPreflightSection("preflight-cmyk-section", "preflight-cmyk", bad);
+    _preflight.unconvertible = (_exportFormat === "pdf" && _imagesCmyk) ? (msg.unconvertible || []) : [];
+    _preflight.scanning = false;
+    renderPreflightModal();
   }
   // Clear a warning immediately (no scan round-trip) — used when downsampling is switched off.
-  function hidePreflightImages() { fillPreflightSection("preflight-images-section", "preflight-images", []); }
-  function hidePreflightCmyk() { fillPreflightSection("preflight-cmyk-section", "preflight-cmyk", []); }
+  function hidePreflightImages() { _preflight.images = []; renderPreflightModal(); }
+  function hidePreflightCmyk() { _preflight.unconvertible = []; renderPreflightModal(); }
   // Drop the pre-flight warnings when the modal opens, so a reopen after scanning a different
   // selection never flashes the previous selection's images before the fresh scan returns.
   function clearPreflight() {
@@ -2886,6 +2902,8 @@
       // show, so skip the whole backend round-trip + per-image walk — otherwise every Colors↔Export
       // switch re-scans a frame's images for no visible result (the interaction lag).
       if (!_downsample && !_imagesCmyk) { hidePreflightImages(); hidePreflightCmyk(); return; }
+      _preflight.scanning = true;
+      renderPreflightModal();
       parent.postMessage({ pluginMessage: {
         type: "preflight-request", dpi: _downsampleDpi,
         scanImages: _exportFormat === "pdf" && _downsample,
@@ -2933,6 +2951,38 @@
     tiffDpi.addEventListener("blur", () => { tiffDpi.value = String(_tiffDpi); });
     if (tiffZip) tiffZip.addEventListener("change", () => { _tiffZip = tiffZip.checked; persist(); });
     if (tiffTransparent) tiffTransparent.addEventListener("change", () => { _tiffTransparent = tiffTransparent.checked; persist(); });
+
+    // Preflight modal: the DS modal shell (is-open, then is-closing for its exit animation).
+    // Opening runs a fresh scan; Rescan runs another. Escape, the overlay and the close button
+    // close it, and focus goes back to the Preflight button.
+    const pfBtn = document.getElementById("export-preflight-btn");
+    const pfModal = document.getElementById("preflight-modal");
+    let _pfCloseTimer = null;
+    const openPreflight = () => {
+      if (!pfModal) return;
+      if (_pfCloseTimer) { clearTimeout(_pfCloseTimer); _pfCloseTimer = null; pfModal.classList.remove("is-closing"); }
+      renderPreflightModal();
+      pfModal.classList.add("is-open");
+      requestPreflight();
+      const close = document.getElementById("preflight-close");
+      if (close) close.focus();
+    };
+    const closePreflight = () => {
+      if (!pfModal || !pfModal.classList.contains("is-open")) return;
+      pfModal.classList.add("is-closing");
+      _pfCloseTimer = setTimeout(() => {
+        pfModal.classList.remove("is-open", "is-closing");
+        _pfCloseTimer = null;
+        if (pfBtn) pfBtn.focus();
+      }, 200);
+    };
+    if (pfBtn) pfBtn.addEventListener("click", openPreflight);
+    if (pfModal) {
+      pfModal.querySelector(".modal-overlay").addEventListener("click", closePreflight);
+      document.getElementById("preflight-close").addEventListener("click", closePreflight);
+      document.getElementById("preflight-rescan").addEventListener("click", requestPreflight);
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePreflight(); });
+    }
     // Called when code.js sends back the persisted settings.
     window.__applyExportSettings = (s) => {
       s = s || {};
