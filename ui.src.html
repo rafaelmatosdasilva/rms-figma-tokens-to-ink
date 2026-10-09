@@ -237,12 +237,12 @@
       <span id="rescan-label">Scan file</span><svg width="16" height="16"><use href="#icon-update"/></svg>
     </button>
   </div>
-  <div class="dividerLine"></div>
+  <div class="dividerLine" role="separator"></div>
   <!-- Colors | Export view tabs — the DS hosts the segmented control in a bare actionBar
        (2120:28369: 48px, padding/m top+bottom, background+border off). Export replaces the
        old flyover+modal. -->
   <div class="actionbar actionbar--plain" id="view-tabs-row" style="display:none;">
-    <div class="segmented-control" id="view-tabs">
+    <div class="segmented-control" id="view-tabs" aria-label="View">
       <div class="seg-pill"></div>
       <button type="button" id="view-colors-btn" class="selected"><svg width="16" height="16"><use href="#icon-var-color"/></svg><span class="tab-label">Colors</span></button>
       <button type="button" id="view-export-btn"><svg width="16" height="16"><use href="#icon-export"/></svg><span class="tab-label">Export</span></button>
@@ -251,11 +251,11 @@
 
   <!-- Colors panel — the scanned color table -->
   <div id="colors-panel" style="display:flex; flex-direction:column; flex:1; min-height:0;">
-    <div id="no-colors-state" class="empty-state" style="display:none;">
+    <div id="no-colors-state" class="empty-state" role="group" aria-labelledby="no-colors-title" style="display:none;">
       <div class="empty-state-content">
         <svg width="56" height="56"><use href="#icon-empty-colors"/></svg>
         <div class="empty-state-text">
-          <p class="empty-state-title">No color variables found</p>
+          <p class="empty-state-title" id="no-colors-title">No color variables found</p>
           <p class="empty-state-desc">The current selection has no bound color variables.</p>
         </div>
       </div>
@@ -279,14 +279,14 @@
       <div class="export-cards">
         <!-- Output card -->
         <section class="export-card-wrap" id="card-output">
-          <div class="card">
-            <span class="export-section-label">Output</span>
+          <div class="card" role="group" aria-labelledby="card-output-label">
+            <span class="export-section-label" id="card-output-label">Output</span>
             <label class="switch"><input type="checkbox" id="pdfx-toggle" class="switch-input" checked><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">PDF/X-4 Press-ready</span><span class="tooltipButton export-info" data-tip="Embed a FOGRA39 CMYK output intent so the file is press-certified. Turn off for a plain PDF 1.4."><svg width="12" height="12"><use href="#icon-info"/></svg></span></span></label>
-            <div class="dividerLine"></div>
+            <div class="dividerLine" role="separator"></div>
             <label class="switch"><input type="checkbox" id="preservespot-toggle" class="switch-input" checked><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">Preserve Pantone Colors</span><span class="tooltipButton export-info" data-tip="Keep assigned Pantone colors as Spot Colors. Turn off to use their CMYK values."><svg width="12" height="12"><use href="#icon-info"/></svg></span></span></label>
-            <div class="dividerLine"></div>
+            <div class="dividerLine" role="separator"></div>
             <label class="switch"><input type="checkbox" id="cmyk-images-toggle" class="switch-input"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">Convert RGB images to CMYK</span><span class="tooltipButton export-info" data-tip="Convert RGB images to CMYK. Images already in CMYK are left as they are. When off, RGB images stay in RGB and the printer converts them using the PDF/X output intent."><svg width="12" height="12"><use href="#icon-info"/></svg></span></span></label>
-            <div class="dividerLine"></div>
+            <div class="dividerLine" role="separator"></div>
             <div class="switch-row">
               <label class="switch"><input type="checkbox" id="downsample-toggle" class="switch-input"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">Downsample images to</span></span></label>
               <div class="inputWrap cropmarks-bleed" id="dpi-wrap">
@@ -299,12 +299,12 @@
         <!-- Raster card (TIFF only) — sits in the LEFT slot (same as Output) so the Marks card
              never shifts position when switching format. -->
         <section class="export-card-wrap" id="card-tiff" hidden>
-          <div class="card">
-            <span class="export-section-label">Output</span>
+          <div class="card" role="group" aria-labelledby="card-tiff-label">
+            <span class="export-section-label" id="card-tiff-label">Output</span>
             <label class="switch"><input type="checkbox" id="tiff-zip-toggle" class="switch-input" checked><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">Compress (lossless ZIP)</span></span></label>
-            <div class="dividerLine"></div>
+            <div class="dividerLine" role="separator"></div>
             <label class="switch"><input type="checkbox" id="tiff-transparent-toggle" class="switch-input"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">Transparent background</span></span></label>
-            <div class="dividerLine"></div>
+            <div class="dividerLine" role="separator"></div>
             <div class="switch-row">
               <span class="switch-description">Resolution</span>
               <div class="inputWrap cropmarks-bleed" id="tiff-dpi-wrap">
@@ -316,16 +316,16 @@
         </section>
         <!-- Marks and bleed card (both formats) — always the RIGHT slot. -->
         <section class="export-card-wrap" id="card-marks">
-          <div class="card">
-            <span class="export-section-label">Marks and bleed</span>
+          <div class="card" role="group" aria-labelledby="card-marks-label">
+            <span class="export-section-label" id="card-marks-label">Marks and bleed</span>
             <label class="switch"><input type="checkbox" id="cropmarks-toggle" class="switch-input"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">Crop Marks</span></span></label>
-            <div class="dividerLine"></div>
+            <div class="dividerLine" role="separator"></div>
             <label class="switch"><input type="checkbox" id="regmarks-toggle" class="switch-input"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">Registration Marks</span></span></label>
-            <div class="dividerLine"></div>
+            <div class="dividerLine" role="separator"></div>
             <label class="switch"><input type="checkbox" id="colorbars-toggle" class="switch-input"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">Color bars</span></span></label>
-            <div class="dividerLine"></div>
+            <div class="dividerLine" role="separator"></div>
             <label class="switch"><input type="checkbox" id="pageinfo-toggle" class="switch-input"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">File information</span></span></label>
-            <div class="dividerLine"></div>
+            <div class="dividerLine" role="separator"></div>
             <div class="switch-row">
               <label class="switch"><input type="checkbox" id="bleed-toggle" class="switch-input"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-content"><span class="switch-description">Bleed</span></span></label>
               <div class="inputWrap cropmarks-bleed" id="bleed-wrap">
@@ -2611,7 +2611,7 @@
          +     `<div class="listItem-main"><span class="listItem-title">${esc(title)}</span></div>`
          +     `<button class="buttonTertiary listItem-action" data-node-id="${esc(id)}" data-tip="Focus in canvas" aria-label="Focus in canvas">${focusIcon}</button>`
          +   `</div>`
-         +   `<div class="dividerLine listItem-divider"></div>`
+         +   `<div class="dividerLine listItem-divider" role="separator"></div>`
          + `</div>`;
   }
   function preflightSection(label, tier, items) {
@@ -2642,7 +2642,7 @@
     const desc = _preflight.scanning ? "Preflight is reading the images in the selection."
       : checking ? "Every image in the selection is ready for print."
       : "Preflight checks images when Downsample images or Convert RGB images to CMYK is on.";
-    slot.innerHTML = `<div class="empty-state"><div class="empty-state-content"><div class="empty-state-text">`
+    slot.innerHTML = `<div class="empty-state" role="group" aria-label="${esc(title)}"><div class="empty-state-content"><div class="empty-state-text">`
                    + `<p class="empty-state-title">${esc(title)}</p><p class="empty-state-desc">${esc(desc)}</p>`
                    + `</div></div></div>`;
   }
@@ -3032,7 +3032,7 @@
     const pickerItems = picker.querySelectorAll('.output-picker-flyout .buttonPrimary');
     const moreAvailable = Array.from(pickerItems).some(i => !existingAfter.has(i.dataset.outputType));
 
-    const inputRowHtml = `<div class="swatch color-swatch output-swatch output-swatch-${t.key} empty"></div><div class="inputWrap output-text-wrap" data-output-type="${t.key}" data-color-var-id="${colorVarId}" data-idx="${idx}"><span class="inputLabel output-lbl lbl-${t.key}">${t.label}</span><input class="inputField output-text-input" type="text" placeholder="" /></div><button class="buttonQuaternary buttonUnpair buttonUnpair-output" data-output-type="${t.key}" data-color-var-id="${colorVarId}" data-tip="Remove">${removeIcon}</button>`;
+    const inputRowHtml = `<div class="swatch color-swatch output-swatch output-swatch-${t.key} empty" aria-hidden="true"></div><div class="inputWrap output-text-wrap" data-output-type="${t.key}" data-color-var-id="${colorVarId}" data-idx="${idx}"><span class="inputLabel output-lbl lbl-${t.key}">${t.label}</span><input class="inputField output-text-input" type="text" placeholder="" /></div><button class="buttonQuaternary buttonUnpair buttonUnpair-output" data-output-type="${t.key}" data-color-var-id="${colorVarId}" data-tip="Remove">${removeIcon}</button>`;
 
     let newRow;
     if (moreAvailable) {
@@ -3132,6 +3132,7 @@
         if (btn) {
           btn.dataset.libName = libName;
           btn.dataset.tip = `Read-only because it comes from an external library. Edit it in ${libName}.`;
+          btn.setAttribute('aria-label', btn.dataset.tip);
         }
       });
       return;
@@ -3274,7 +3275,7 @@
             ? `<button class="buttonQuaternary buttonUnpair buttonUnpair-raw" data-node-ids="${nodeIdList}" data-tip="Select in canvas">${focusIcon}</button>`
             : '';
           tableRows.push([' row-raw', `<div class="tableRow-variable">
-              <div class="swatch color-swatch" style="background:${r.hex}"></div>
+              <div class="swatch color-swatch" role="img" aria-label="${r.hex}" style="background:${r.hex}"></div>
               <div class="tableRow-info">
                 <div class="tableRow-nameRow">
                   <span class="tableRow-name var-name">${r.hex}</span>
@@ -3308,7 +3309,7 @@
         // CMYK boxes row
         const readOnly = !!r.isExternal;
         const groupClass = readOnly ? 'cmyk-group cmyk-auto cmyk-readonly' : (isSystem ? 'cmyk-group' : 'cmyk-group cmyk-auto');
-        const infoIcon = `<svg width="12" height="12"><use href="#icon-info"/></svg>`;
+        const infoIcon = `<svg width="12" height="12" aria-hidden="true"><use href="#icon-info"/></svg>`;
         const cmykUnpairBtn = readOnly
           ? `<span class="cmyk-spacer"></span>`
           : (isSystem
@@ -3316,7 +3317,7 @@
             : `<span class="cmyk-spacer"></span>`);
         const makeBox = (lbl, val) =>
           `<div class="inputWrap cmyk-box-wrap"><span class="inputLabel cmyk-lbl">${lbl}</span><input class="inputField cmyk-box" type="text" inputmode="numeric" maxlength="3" autocomplete="off" value="${val}"${readOnly ? ' readonly' : ''} /></div>`;
-        const cmykRow = `<div class="tableRow-outputRow output-row"><div class="swatch color-swatch cmyk-swatch" style="background:${cmykHex}"></div><div class="${groupClass}" data-color-var-id="${r.colorVarId || ''}" data-idx="${idx}" data-hex="${r.hex || ''}" data-auto-c="${autoC.c}" data-auto-m="${autoC.m}" data-auto-y="${autoC.y}" data-auto-k="${autoC.k}">${makeBox('C',cmyk.c)}${makeBox('M',cmyk.m)}${makeBox('Y',cmyk.y)}${makeBox('K',cmyk.k)}</div>${cmykUnpairBtn}</div>`;
+        const cmykRow = `<div class="tableRow-outputRow output-row"><div class="swatch color-swatch cmyk-swatch" aria-hidden="true" style="background:${cmykHex}"></div><div class="${groupClass}" data-color-var-id="${r.colorVarId || ''}" data-idx="${idx}" data-hex="${r.hex || ''}" data-auto-c="${autoC.c}" data-auto-m="${autoC.m}" data-auto-y="${autoC.y}" data-auto-k="${autoC.k}">${makeBox('C',cmyk.c)}${makeBox('M',cmyk.m)}${makeBox('Y',cmyk.y)}${makeBox('K',cmyk.k)}</div>${cmykUnpairBtn}</div>`;
 
         // Extra output rows (Pantone, RAL, Vinyl)
         // Render in the exact order they appeared in the DOM before rebuild,
@@ -3369,11 +3370,11 @@
         const cmykCell = `<div class="tableRow-output output-cell"${readOnly ? ' data-readonly="1"' : ''}>${cmykRow}${extraRows}${addBtn ? `<div class="tableRow-outputRow output-row output-add-row">${addBtn}</div>` : ''}</div>`;
 
         const infoBtn = readOnly
-          ? `<span class="tooltipButton lib-info" data-color-var-id="${r.colorVarId || ''}" data-lib-name="" data-tip="Read-only because it comes from an external library.">${infoIcon}</span>`
+          ? `<button type="button" class="tooltipButton lib-info" data-color-var-id="${r.colorVarId || ''}" data-lib-name="" data-tip="Read-only because it comes from an external library." aria-label="Read-only because it comes from an external library.">${infoIcon}</button>`
           : '';
 
         tableRows.push(['', `<div class="tableRow-variable">
-            <div class="swatch color-swatch" style="background:${r.hex}"></div>
+            <div class="swatch color-swatch" role="img" aria-label="${r.hex}" style="background:${r.hex}"></div>
             <div class="tableRow-info">
               <div class="tableRow-nameRow"><span class="tableRow-name var-name" data-tip="${esc(name.replace(/\//g, ' /\n'))}">${esc(name)}</span>${infoBtn}</div>
               <div class="tableRow-value">${r.hex}</div>
@@ -3384,7 +3385,7 @@
       });
 
       document.getElementById("color-body").innerHTML = tableRows.map(([cls, content], i) =>
-        `<div class="tableRow${cls}"><div class="tableRow-content">${content}</div>${i < tableRows.length - 1 ? '<div class="dividerLine"></div>' : ''}</div>`).join('');
+        `<div class="tableRow${cls}"><div class="tableRow-content">${content}</div>${i < tableRows.length - 1 ? '<div class="dividerLine" role="separator"></div>' : ''}</div>`).join('');
 
 
       // ── Raw focus buttons ──
