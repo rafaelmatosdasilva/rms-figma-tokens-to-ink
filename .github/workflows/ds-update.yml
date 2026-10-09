@@ -43,7 +43,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-          cache: pnpm
+          # No pnpm cache: on a day with no new system version nothing is installed, and saving a cache that was never
+          # filled fails the run although it did its job.
       - name: Find the version
         run: |
           PINNED="$(node -p 'require("./package.json").dependencies["@rms/ds-core"].split("#")[1]')"
