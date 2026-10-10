@@ -28,7 +28,9 @@ describe('tokens-to-ink UI — export pre-flight', () => {
     openPreflight(ui);
     const modal = ui.$('#preflight-modal');
     expect(modal.classList.contains('is-open')).toBe(true);
-    expect(modal.getAttribute('role')).toBe('dialog');
+    // The system's modal: the card is a modal dialog named by its title.
+    expect(modal.querySelector('.modal-card').getAttribute('role')).toBe('dialog');
+    expect(modal.querySelector('.modal-card').getAttribute('aria-labelledby')).toBe('preflight-title');
     expect(ui.sentOf('preflight-request').length).toBeGreaterThan(before);
     expect(ui.$('#preflight-rescan').disabled).toBe(true);   // Rescan waits while a scan runs
     ui.receive(imagesMsg({ images: [] }));

@@ -5,6 +5,10 @@ A design system update is committed without a release (`build: ds-core vX.Y.Z`) 
 
 (Some earlier entries use decimals like `v5.1` for repo-only releases. That scheme was retired on 22 July 2026.)
 
+### Not released yet
+
+- The Preflight window keeps the keyboard inside it while it is open.
+
 ### v6 · 13 September 2026
 Published to Figma Community. (The v5 Community release was superseded by this one and
 removed; everything it carried is included here.)
