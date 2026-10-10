@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@rms/ds-core':
-        specifier: github:rafaelmatosdasilva/rms-ds-figma-plugins#v2.0.20
-        version: https://codeload.github.com/rafaelmatosdasilva/rms-ds-figma-plugins/tar.gz/a3cfc5742bde409df8e9cc3f92752b964e6c4953(vitest@2.1.9(jsdom@30.1.2))
+        specifier: github:rafaelmatosdasilva/rms-ds-figma-plugins#v2.0.21
+        version: https://codeload.github.com/rafaelmatosdasilva/rms-ds-figma-plugins/tar.gz/032b2c0c5b5d4d7f34652f0fc2b679528fff8063(vitest@2.1.9(jsdom@30.1.2))
     devDependencies:
       vitest:
         specifier: ^2.1.0
@@ -223,9 +223,9 @@ packages:
     os: [linux]
     libc: [glibc]
 
-  '@rms/ds-core@https://codeload.github.com/rafaelmatosdasilva/rms-ds-figma-plugins/tar.gz/a3cfc5742bde409df8e9cc3f92752b964e6c4953':
-    resolution: {tarball: https://codeload.github.com/rafaelmatosdasilva/rms-ds-figma-plugins/tar.gz/a3cfc5742bde409df8e9cc3f92752b964e6c4953}
-    version: 2.0.20
+  '@rms/ds-core@https://codeload.github.com/rafaelmatosdasilva/rms-ds-figma-plugins/tar.gz/032b2c0c5b5d4d7f34652f0fc2b679528fff8063':
+    resolution: {tarball: https://codeload.github.com/rafaelmatosdasilva/rms-ds-figma-plugins/tar.gz/032b2c0c5b5d4d7f34652f0fc2b679528fff8063}
+    version: 2.0.21
     hasBin: true
     peerDependencies:
       vitest: ^2.1.0
@@ -801,7 +801,7 @@ snapshots:
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
 
-  '@rms/ds-core@https://codeload.github.com/rafaelmatosdasilva/rms-ds-figma-plugins/tar.gz/a3cfc5742bde409df8e9cc3f92752b964e6c4953(vitest@2.1.9(jsdom@30.1.2))':
+  '@rms/ds-core@https://codeload.github.com/rafaelmatosdasilva/rms-ds-figma-plugins/tar.gz/032b2c0c5b5d4d7f34652f0fc2b679528fff8063(vitest@2.1.9(jsdom@30.1.2))':
     dependencies:
       esbuild: 0.21.5
       jsdom: 30.1.2
