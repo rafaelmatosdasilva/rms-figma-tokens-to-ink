@@ -349,7 +349,7 @@
 
 <!-- Preflight (DS screen 2225:28241): the DS modal over the DS overlay. Its slot holds a
      dividerSection per severity and a listItem per finding, each with a Focus in canvas action. -->
-<div id="preflight-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="preflight-title">
+<div id="preflight-modal" class="modal">
   <div class="overlay modal-overlay"></div>
   <div class="modal-card">
     <div class="modal-header">
@@ -2825,36 +2825,20 @@
     if (tiffZip) tiffZip.addEventListener("change", () => { _tiffZip = tiffZip.checked; persist(); });
     if (tiffTransparent) tiffTransparent.addEventListener("change", () => { _tiffTransparent = tiffTransparent.checked; persist(); });
 
-    // Preflight modal: the DS modal shell (is-open, then is-closing for its exit animation).
-    // Opening runs a fresh scan; Rescan runs another. Escape, the overlay and the close button
-    // close it, and focus goes back to the Preflight button.
+    // Preflight modal: the system's modal (openModal and closeModal keep its focus, Escape and
+    // overlay). Opening runs a fresh scan; Rescan runs another.
     const pfBtn = document.getElementById("export-preflight-btn");
     const pfModal = document.getElementById("preflight-modal");
-    let _pfCloseTimer = null;
     const openPreflight = () => {
       if (!pfModal) return;
-      if (_pfCloseTimer) { clearTimeout(_pfCloseTimer); _pfCloseTimer = null; pfModal.classList.remove("is-closing"); }
       renderPreflightModal();
-      pfModal.classList.add("is-open");
+      openModal(pfModal, { opener: pfBtn, initialFocus: "#preflight-close" });
       requestPreflight();
-      const close = document.getElementById("preflight-close");
-      if (close) close.focus();
-    };
-    const closePreflight = () => {
-      if (!pfModal || !pfModal.classList.contains("is-open")) return;
-      pfModal.classList.add("is-closing");
-      _pfCloseTimer = setTimeout(() => {
-        pfModal.classList.remove("is-open", "is-closing");
-        _pfCloseTimer = null;
-        if (pfBtn) pfBtn.focus();
-      }, 200);
     };
     if (pfBtn) pfBtn.addEventListener("click", openPreflight);
     if (pfModal) {
-      pfModal.querySelector(".modal-overlay").addEventListener("click", closePreflight);
-      document.getElementById("preflight-close").addEventListener("click", closePreflight);
+      document.getElementById("preflight-close").addEventListener("click", () => closeModal(pfModal));
       document.getElementById("preflight-rescan").addEventListener("click", requestPreflight);
-      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePreflight(); });
     }
     // Called when code.js sends back the persisted settings.
     window.__applyExportSettings = (s) => {
