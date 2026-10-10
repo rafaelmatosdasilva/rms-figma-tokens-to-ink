@@ -8,6 +8,7 @@ A design system update is committed without a release (`build: ds-core vX.Y.Z`) 
 ### Not released yet
 
 - The Preflight window keeps the keyboard inside it while it is open.
+- The Add output and Reset CMYK to auto buttons, which show only an icon, are named for a screen reader.
 
 ### v6 · 13 September 2026
 Published to Figma Community. (The v5 Community release was superseded by this one and
