@@ -2982,7 +2982,7 @@
         ).join('');
         addRow = document.createElement('div');
         addRow.className = 'tableRow-outputRow output-row output-add-row';
-        addRow.innerHTML = `<div class="output-picker" data-color-var-id="${colorVarId}" data-idx="${idx}"><button class="buttonSecondary buttonAddOutput" data-tip="Add output"><svg width="16" height="16"><use href="#icon-plus"/></svg></button><div class="output-picker-flyout">${pickerBtns}</div></div>`;
+        addRow.innerHTML = `<div class="output-picker" data-color-var-id="${colorVarId}" data-idx="${idx}"><button class="buttonSecondary buttonAddOutput" data-tip="Add output" aria-label="Add output"><svg width="16" height="16"><use href="#icon-plus"/></svg></button><div class="output-picker-flyout">${pickerBtns}</div></div>`;
         outputCell.appendChild(addRow);
         attachAddRowListeners(addRow, outputCell);
       }
@@ -3297,7 +3297,7 @@
         const cmykUnpairBtn = readOnly
           ? `<span class="cmyk-spacer"></span>`
           : (isSystem
-            ? `<button class="buttonQuaternary buttonUnpair buttonUnpair-cmyk" data-tip="Reset CMYK to auto" data-color-var-id="${r.colorVarId || ''}"><svg width="16" height="16"><use href="#icon-reset"/></svg></button>`
+            ? `<button class="buttonQuaternary buttonUnpair buttonUnpair-cmyk" data-tip="Reset CMYK to auto" aria-label="Reset CMYK to auto" data-color-var-id="${r.colorVarId || ''}"><svg width="16" height="16"><use href="#icon-reset"/></svg></button>`
             : `<span class="cmyk-spacer"></span>`);
         const makeBox = (lbl, val) =>
           `<div class="inputWrap cmyk-box-wrap"><span class="inputLabel cmyk-lbl">${lbl}</span><input class="inputField cmyk-box" type="text" inputmode="numeric" maxlength="3" autocomplete="off" value="${val}"${readOnly ? ' readonly' : ''} /></div>`;
@@ -3348,7 +3348,7 @@
           `<button class="buttonPrimary" data-output-type="${t.key}" data-color-var-id="${r.colorVarId || ''}" data-idx="${idx}"><span>${t.label}</span></button>`
         ).join('');
         const addBtn = !readOnly && availableTypes.length > 0
-          ? `<div class="output-picker" data-color-var-id="${r.colorVarId || ''}" data-idx="${idx}"><button class="buttonSecondary buttonAddOutput" data-tip="Add output"><svg width="16" height="16"><use href="#icon-plus"/></svg></button><div class="output-picker-flyout">${pickerBtns}</div></div>`
+          ? `<div class="output-picker" data-color-var-id="${r.colorVarId || ''}" data-idx="${idx}"><button class="buttonSecondary buttonAddOutput" data-tip="Add output" aria-label="Add output"><svg width="16" height="16"><use href="#icon-plus"/></svg></button><div class="output-picker-flyout">${pickerBtns}</div></div>`
           : '';
 
         const cmykCell = `<div class="tableRow-output output-cell"${readOnly ? ' data-readonly="1"' : ''}>${cmykRow}${extraRows}${addBtn ? `<div class="tableRow-outputRow output-row output-add-row">${addBtn}</div>` : ''}</div>`;
@@ -3445,6 +3445,7 @@
               btn.className = 'buttonQuaternary buttonUnpair buttonUnpair-cmyk';
               btn.dataset.colorVarId = colorVarId;
               btn.dataset.tip = 'Reset CMYK to auto';
+              btn.setAttribute('aria-label', 'Reset CMYK to auto');
               btn.innerHTML = `<svg width="16" height="16"><use href="#icon-reset"/></svg>`;
               sibling.replaceWith(btn);
               btn.addEventListener('click', () => {
