@@ -7,6 +7,9 @@ A design system update is committed without a release (`build: ds-core vX.Y.Z`) 
 
 ### Not released yet
 
+- One line under the bar at the top, as in the design: the bar draws it, so the second line under it is gone.
+- The selected frames at the top sit 4px apart, and Preflight and Export PDF 12px apart, as in the design.
+- Scanning and exporting show the design system's loader over the page, as in the design.
 - The Preflight window keeps the keyboard inside it while it is open.
 - The Add output and Reset CMYK to auto buttons, which show only an icon, are named for a screen reader.
 

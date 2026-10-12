@@ -230,14 +230,14 @@
 <div id="results-ui" style="display:flex; flex-direction:column; flex:1; min-height:0;">
   <div id="actionbar" class="actionbar">
     <!-- source chips, rescan btn, and export picker injected by JS -->
-    <div id="source-chips" style="display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-m);flex:1;min-width:0;"></div>
+    <div id="source-chips" style="display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-s);flex:1;min-width:0;"></div>
     <!-- Export moved to the inline Colors|Export tabs (see #view-tabs). -->
     <!-- Label swaps with the selection — see the selection-count handler. -->
     <button id="rescan-btn" class="buttonPrimary">
       <span id="rescan-label">Scan file</span><svg width="16" height="16"><use href="#icon-update"/></svg>
     </button>
   </div>
-  <div class="dividerLine" role="separator"></div>
+  <!-- The actionBar draws its own line under it, as Figma has it: no dividerLine of its own here. -->
   <!-- Colors | Export view tabs — the DS hosts the segmented control in a bare actionBar
        (2120:28369: 48px, padding/m top+bottom, background+border off). Export replaces the
        old flyover+modal. -->
@@ -341,8 +341,11 @@
     <div class="actionbar export-bottom-bar">
       <button class="buttonTertiary" id="export-savedefault-btn"><span>Save as default</span></button>
       <div style="flex:1;min-width:0;"></div>
-      <button class="buttonSecondary" id="export-preflight-btn" aria-haspopup="dialog"><span>Preflight</span></button>
-      <button class="buttonPrimary" id="export-confirm-btn"><span id="export-confirm-label">Export PDF</span><svg width="16" height="16"><use href="#icon-export"/></svg></button>
+      <!-- Figma's Frame 135: Preflight and Export PDF, gap/l apart. -->
+      <div style="display:flex;align-items:center;gap:var(--gap-l);">
+        <button class="buttonSecondary" id="export-preflight-btn" aria-haspopup="dialog"><span>Preflight</span></button>
+        <button class="buttonPrimary" id="export-confirm-btn"><span id="export-confirm-label">Export PDF</span><svg width="16" height="16"><use href="#icon-export"/></svg></button>
+      </div>
     </div>
   </div>
 </div>
@@ -667,7 +670,7 @@
     _setScanBusy(false);
     const m = document.querySelector('.progress-msg.progress-scan');
     if (!m) return;
-    if (immediate) { m.remove(); return; }
+    if (immediate) { dismissProgress(); return; }   // the loader sits in the system's overlay: both go
     if (_scanCancelled) { dismissProgress(); return; }
     // Keep visible for at least 2s.
     const elapsed = Date.now() - _scanShownAt;
